@@ -173,54 +173,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署 </p>
-<h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>CentOS IP：192.168.1.1 </p>
-<p>Python：2.7.14</p>
-<p>Django：1.9.5</p>
-<p>Nginx:1.10.1</p>
-<p>安装 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">yum install wget -y</span><br><span class="line">wget https://pypi.python.org/packages/e7/a8/7556133689add8d1a54c0b14aeff0acb03c64707ce100ecd53934da1aa13/pip-8.1.2.tar.gz#md5=87083c0b9867963b29f7aba3613e8f4a</span><br><span class="line"></span><br><span class="line">tar zxvf pip-8.1.2.tar.gz</span><br><span class="line">cd ./pip-8.1.2</span><br><span class="line">wget http://pypi.python.org/packages/source/s/setuptools/setuptools-0.6c11.tar.gz</span><br><span class="line">tar zxvf setuptools-0.6c11.tar.gz</span><br><span class="line">cd setuptools-0.6c11</span><br><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br><span class="line">cd ../</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
-<p>然后利用pip下载django和uwsgi</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install django==1.9.5</span><br><span class="line">pip install uwsgi</span><br></pre></td></tr></table></figure>
-<p>下载完成之后就可以把你所写的项目放到服务器上面。我这里距离是放在/project/ </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python /project/manage.py runserver 192.168.1.1:8000</span><br></pre></td></tr></table></figure>
-<h4 id="uwsgi-配置启动"><a href="#uwsgi-配置启动" class="headerlink" title="uwsgi 配置启动"></a>uwsgi 配置启动</h4><p>首先新建1个test.uwsgi.py文件在项目的根目录。即/project (与manage.py同目录) </p>
-<p>测试uWSGI: 新建文件test.uwsgi.py ，写入以下内容 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def application(env, start_response):</span><br><span class="line">    start_response(&apos;200 OK&apos;, [(&apos;Content-Type&apos;,&apos;text/html&apos;)])</span><br><span class="line">    return &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
-<p>uwsgi的话有2种开启方法</p>
-<p>第一种是直接在命令行输入命令打开，如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">uwsgi --http 192.168.1.1:8000 --chdir /project --module test_uwsgi --chmod-socket=666</span><br><span class="line">uwsgi --http localhost:8000 --chdir /project --module test_uwsgi</span><br></pre></td></tr></table></figure>
-<p>第二种就是添加ini或xml配置文件</p>
-<p>新建文件test.ini在项目根目录 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">vi /project/test.ini</span><br><span class="line"></span><br><span class="line">[uwsgi]</span><br><span class="line">http = 192.157.1.1:8000 #监听IP和端口</span><br><span class="line">chdir = /project     #项目根目录</span><br><span class="line">module = test_uwsgi    #uwsgi文件，注意不用把后缀.py加上去</span><br><span class="line">processes = 4       #开启4个进程（按需更改）</span><br><span class="line">threads = 2           #每个进程开启4个线程</span><br><span class="line">enable-threads = True    #支持线程启动</span><br><span class="line">daemonize = /var/log/uwsgi.log    #后台启动，并把日志记录到指定文件</span><br><span class="line">buffer-size = 21573</span><br><span class="line">#stats = 192.157.1.1:9000</span><br></pre></td></tr></table></figure>
-<p>因不识别注释，更改后：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[uwsgi]</span><br><span class="line">http = localhost:8000</span><br><span class="line">chdir = /root/lyzf</span><br><span class="line">module = manage</span><br><span class="line">processes = 2</span><br><span class="line">threads = 2</span><br><span class="line">enable-threads = True</span><br><span class="line">daemonize = /var/log/uwsgi.log</span><br><span class="line">buffer-size = 21573</span><br></pre></td></tr></table></figure>
-<p>示例中用的是ini配置文件，如需使用xml配置，请另行百度xml配置文件。更多的参数使用也可以自行百度添加上去</p>
-<p>当ini配置文件写好后执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uwsgi --ini /project/test.ini #--ini 表示使用ini配置文件，xml文件就用--xml</span><br></pre></td></tr></table></figure>
-<h4 id="nginx安装配置"><a href="#nginx安装配置" class="headerlink" title="nginx安装配置"></a>nginx安装配置</h4><p>因为途方便，所以我直接选择yum 安装。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm</span><br><span class="line">chmod +x nginx-release-centos-6-0.el6.ngx.noarch.rpm</span><br><span class="line">rpm -i nginx-release-centos-6-0.el6.ngx.noarch.rpm </span><br><span class="line">yum install nginx -y</span><br></pre></td></tr></table></figure>
-<p>安装成功之后，nginx的目录会在/etc/nginx 下 </p>
-<p>接下来就要修改nginx 的默认配置了。</p>
-<p>查看默认配置文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/nginx/nginx.conf</span><br><span class="line"></span><br><span class="line">user  nginx;</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">error_log  /var/log/nginx/error.log warn;</span><br><span class="line">pid        /var/run/nginx.pid;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       /etc/nginx/mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</span><br><span class="line">                      &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</span><br><span class="line">                      &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</span><br><span class="line"></span><br><span class="line">    access_log  /var/log/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    #tcp_nopush     on;</span><br><span class="line"></span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line">    #gzip  on;</span><br><span class="line"></span><br><span class="line">    include /etc/nginx/conf.d/*.conf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这是我的默认配置文件，如果我没记错的话应该是没做过任何修改的。请确保里面有include /etc/nginx/conf.d/*.conf;这行</p>
-<p>这行的意思就是包含了所有/etc/nginx/conf.d/下 后缀是.conf的配置文件</p>
-<p>然后我们在/etc/nginx/conf.d/目录下创建test.conf</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vi  /etc/nginx/conf.d/test.conf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">server&#123;</span><br><span class="line">        listen       80 ;    #监听80端口</span><br><span class="line">        access_log /var/log/nginx/access.log;    #日志文件位置</span><br><span class="line">        error_log  /var/log/nginx/error.log;</span><br><span class="line">        location / &#123;#访问/时</span><br><span class="line">          include         uwsgi_params; #加载uwsgi模块</span><br><span class="line">          proxy_pass http://192.168.1.1:8000;  #将连接转到该IP</span><br><span class="line">        &#125;</span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">          location = /50x.html &#123;</span><br><span class="line">              root   html;</span><br><span class="line">        &#125;</span><br><span class="line">        location /static/ &#123;</span><br><span class="line">            alias  /project/static/;    #访问/static时直接访问到/project/static </span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>nginx -t</p>
-<p>修改nginx配置文件后，重启报错：</p>
-<p>nginx: [emerg] socket() [::]:80 failed (97: Address family not supported by protocol)</p>
-<p>解决办法：</p>
-<p>vim <strong>/etc/nginx/conf.d/default.conf</strong> </p>
-<p>将</p>
-<p>listen       80 default_server; </p>
-<p>listen       [::]:80 default_server;</p>
-<p>改为： </p>
-<p>listen       80; </p>
-<p>#listen       [::]:80 default_server;</p>
-<p>重新启动nginx即可，网上说的那种kill掉nginx进程和ipv6 on的方法不适用</p>
-<p>然后就大功告成了。当用户直接访问192.168.1.1：80  时  nginx 就会把连接转到192.168.1.1:8000上。 </p>
-
+        
+          <a class="article-more-a" href="/2018/06/22/CentOS部署Nginx-uWSGI-Django/#more">more >></a>
+        
       
 
       
@@ -282,8 +237,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>文件比较运算符</strong><br>-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]<br>-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]<br>-f filename 如果 filename为常规文件，则为真 [ -f /usr/bin/grep ]<br>-L filename 如果 filename为符号链接，则为真 [ -L /usr/bin/grep ]<br>-r filename 如果 filename可读，则为真 [ -r /var/log/syslog ]<br>-w filename 如果 filename可写，则为真 [ -w /var/mytmp.txt ]<br>-x filename 如果 filename可执行，则为真 [ -L /usr/bin/grep ]<br>filename1-nt filename2 如果 filename1比 filename2新，则为真 [ /tmp/install/etc/services -nt /etc/services ]<br>filename1-ot filename2 如果 filename1比 filename2旧，则为真 [ /boot/bzImage -ot arch/i386/boot/bzImage ]<br><strong>字符串比较运算符 （请注意引号的使用，这是防止空格扰乱代码的好方法）</strong><br>-z string 如果 string长度为零，则为真 [ -z “$myvar” ]<br>-n string 如果 string长度非零，则为真 [ -n “$myvar” ]<br>string1= string2 如果 string1与 string2相同，则为真 [ “$myvar” = “one two three” ]<br>string1!= string2 如果 string1与 string2不同，则为真 [ “$myvar” != “one two three” ]<br><strong>算术比较运算符</strong><br>num1-eq num2 等于 [ 3 -eq $mynum ]<br>num1-ne num2 不等于 [ 3 -ne $mynum ]<br>num1-lt num2 小于 [ 3 -lt $mynum ]<br>num1-le num2 小于或等于 [ 3 -le $mynum ]<br>num1-gt num2 大于 [ 3 -gt $mynum ]<br>num1-ge num2 大于或等于 [ 3 -ge $mynum ]</p>
-
+        <p><strong>文件比较运算符</strong></p>
+<p>-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]<br>-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]</p>
+        
+          <a class="article-more-a" href="/2018/06/22/linux-shell-指令-诸如-d-f-e之类的判断表达式/#more">more >></a>
+        
       
 
       
@@ -325,19 +283,19 @@
 
 
   
-    <article id="post-Index" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Hello World" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/22/Index/">Hello World</a>
+      <a class="article-title" href="/2018/06/22/Hello World/">Hello World</a>
     </h1>
   
 
         
-        <a href="/2018/06/22/Index/" class="archive-article-date">
+        <a href="/2018/06/22/Hello World/" class="archive-article-date">
   	<time datetime="2018-06-22T12:11:06.114Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-22</time>
 </a>
         
@@ -346,15 +304,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
+        
+          <a class="article-more-a" href="/2018/06/22/Hello World/#more">more >></a>
+        
       
 
       
@@ -366,7 +318,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/22/Index/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/06/22/Hello World/">展开全文 >></a>
         </p>
       
 

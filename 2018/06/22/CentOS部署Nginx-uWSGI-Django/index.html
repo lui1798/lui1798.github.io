@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://localhost:4000">
   <title>CentOS部署Nginx+uWSGI+Django | 运维笔记</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署  准备工作CentOS IP：192.168.1.1  Python：2.7.14 Django：1.9.5 Nginx:1.1">
+  <meta name="description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CentOS部署Nginx+uWSGI+Django">
 <meta property="og:url" content="http://localhost:4000/2018/06/22/CentOS部署Nginx-uWSGI-Django/index.html">
 <meta property="og:site_name" content="运维笔记">
-<meta property="og:description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署  准备工作CentOS IP：192.168.1.1  Python：2.7.14 Django：1.9.5 Nginx:1.1">
+<meta property="og:description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-06-22T15:50:27.379Z">
+<meta property="og:updated_time" content="2018-06-23T02:35:12.817Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS部署Nginx+uWSGI+Django">
-<meta name="twitter:description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署  准备工作CentOS IP：192.168.1.1  Python：2.7.14 Django：1.9.5 Nginx:1.1">
+<meta name="twitter:description" content="前言使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署">
   
     <link rel="alternative" href="/atom.xml" title="运维笔记" type="application/atom+xml">
   
@@ -175,6 +175,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>使用runserver可以使我们的django项目很便捷的在本地运行起来，但这只能在局域网内访问，如果在生产环境部署django，就要多考虑一些问题了。比如静态文件处理，安全，效率等等，本篇文章总结归纳了一下基于uwsgi+Nginx下django项目生产环境的部署 </p>
+<a id="more"></a>
 <h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>CentOS IP：192.168.1.1 </p>
 <p>Python：2.7.14</p>
 <p>Django：1.9.5</p>
