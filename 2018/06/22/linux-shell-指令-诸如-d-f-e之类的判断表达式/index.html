@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://localhost:4000">
   <title>linux shell 指令 诸如-d, -f, -e之类的判断表达式 | 运维笔记</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="文件比较运算符 -e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
+  <meta name="description" content="文件比较运算符-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux shell 指令 诸如-d, -f, -e之类的判断表达式">
 <meta property="og:url" content="http://localhost:4000/2018/06/22/linux-shell-指令-诸如-d-f-e之类的判断表达式/index.html">
 <meta property="og:site_name" content="运维笔记">
-<meta property="og:description" content="文件比较运算符 -e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
+<meta property="og:description" content="文件比较运算符-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-06-23T02:35:29.253Z">
+<meta property="og:updated_time" content="2018-06-23T02:43:44.984Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux shell 指令 诸如-d, -f, -e之类的判断表达式">
-<meta name="twitter:description" content="文件比较运算符 -e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
+<meta name="twitter:description" content="文件比较运算符-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]">
   
     <link rel="alternative" href="/atom.xml" title="运维笔记" type="application/atom+xml">
   
@@ -174,10 +174,12 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>文件比较运算符</strong></p>
-<p>-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]<br>-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]</p>
+        <h4 id="文件比较运算符"><a href="#文件比较运算符" class="headerlink" title="文件比较运算符"></a><strong>文件比较运算符</strong></h4><p>-e filename 如果 filename存在，则为真 [ -e /var/log/syslog ]<br>-d filename 如果 filename为目录，则为真 [ -d /tmp/mydir ]</p>
 <a id="more"></a>
-<p>-f filename 如果 filename为常规文件，则为真 [ -f /usr/bin/grep ]<br>-L filename 如果 filename为符号链接，则为真 [ -L /usr/bin/grep ]<br>-r filename 如果 filename可读，则为真 [ -r /var/log/syslog ]<br>-w filename 如果 filename可写，则为真 [ -w /var/mytmp.txt ]<br>-x filename 如果 filename可执行，则为真 [ -L /usr/bin/grep ]<br>filename1-nt filename2 如果 filename1比 filename2新，则为真 [ /tmp/install/etc/services -nt /etc/services ]<br>filename1-ot filename2 如果 filename1比 filename2旧，则为真 [ /boot/bzImage -ot arch/i386/boot/bzImage ]<br><strong>字符串比较运算符 （请注意引号的使用，这是防止空格扰乱代码的好方法）</strong><br>-z string 如果 string长度为零，则为真 [ -z “$myvar” ]<br>-n string 如果 string长度非零，则为真 [ -n “$myvar” ]<br>string1= string2 如果 string1与 string2相同，则为真 [ “$myvar” = “one two three” ]<br>string1!= string2 如果 string1与 string2不同，则为真 [ “$myvar” != “one two three” ]<br><strong>算术比较运算符</strong><br>num1-eq num2 等于 [ 3 -eq $mynum ]<br>num1-ne num2 不等于 [ 3 -ne $mynum ]<br>num1-lt num2 小于 [ 3 -lt $mynum ]<br>num1-le num2 小于或等于 [ 3 -le $mynum ]<br>num1-gt num2 大于 [ 3 -gt $mynum ]<br>num1-ge num2 大于或等于 [ 3 -ge $mynum ]</p>
+<p>-f filename 如果 filename为常规文件，则为真 [ -f /usr/bin/grep ]<br>-L filename 如果 filename为符号链接，则为真 [ -L /usr/bin/grep ]<br>-r filename 如果 filename可读，则为真 [ -r /var/log/syslog ]<br>-w filename 如果 filename可写，则为真 [ -w /var/mytmp.txt ]<br>-x filename 如果 filename可执行，则为真 [ -L /usr/bin/grep ]<br>filename1-nt filename2 如果 filename1比 filename2新，则为真 [ /tmp/install/etc/services -nt /etc/services ]<br>filename1-ot filename2 如果 filename1比 filename2旧，则为真 [ /boot/bzImage -ot arch/i386/boot/bzImage ]</p>
+<h4 id="字符串比较运算符"><a href="#字符串比较运算符" class="headerlink" title="字符串比较运算符 "></a><strong>字符串比较运算符 </strong></h4><p><strong>（请注意引号的使用，这是防止空格扰乱代码的好方法）</strong></p>
+<p>-z string 如果 string长度为零，则为真 [ -z “$myvar” ]<br>-n string 如果 string长度非零，则为真 [ -n “$myvar” ]<br>string1= string2 如果 string1与 string2相同，则为真 [ “$myvar” = “one two three” ]<br>string1!= string2 如果 string1与 string2不同，则为真 [ “$myvar” != “one two three” ]</p>
+<h4 id="算术比较运算符"><a href="#算术比较运算符" class="headerlink" title="算术比较运算符"></a><strong>算术比较运算符</strong></h4><p>num1-eq num2 等于 [ 3 -eq $mynum ]<br>num1-ne num2 不等于 [ 3 -ne $mynum ]<br>num1-lt num2 小于 [ 3 -lt $mynum ]<br>num1-le num2 小于或等于 [ 3 -le $mynum ]<br>num1-gt num2 大于 [ 3 -gt $mynum ]<br>num1-ge num2 大于或等于 [ 3 -ge $mynum ]</p>
 
       
 
